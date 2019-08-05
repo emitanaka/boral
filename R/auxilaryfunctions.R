@@ -432,8 +432,42 @@ ds.residuals <- function(object, est = "median") {
 }
 
 
-## Fitted values
-## For ordinal and multinomial data, returns a matrix of probabilities for each vector of rows
+#' Extract Model Fitted Values for an boral object
+#' 
+#' Calculated the predicted mean responses based on the fitted model, by using the posterior medians or means of the parameters.
+#' 
+#' @usage 
+#' \method{fitted}{boral}(object, est = "median",...) 
+#' 
+#' @param  object An object of class "boral".
+#' @param  est A choice of either the posterior median (\code{est == "median"}) or posterior mean (\code{est == "mean"}), which are then treated as estimates and the fitted values are calculated from. Default is posterior median.}
+#' @param  ... Not used.
+#' 
+#' @details 
+#' This fitted values here are calculated based on a point estimate of the parameters, as determined by the argument \code{est}. A fully Bayesian approach would calculate the fitted values by averaging over the posterior distribution of the parameters i.e., ergodically average over the MCMC samples. For simplicity and speed though (to avoid generation of a large number of predicted values), this is not implemented.
+#' 
+#' @return 
+#' A list containing \code{ordinal.probs} which is an array with dimensions (no. of rows of \code{y}) x (no. of rows of \code{y}) x (no. of levels) containing the predicted probabilities for ordinal columns, and \code{out} which is a matrix of the same dimension as the original response matrix \code{y} containing the fitted values. For ordinal columns, the "fitted values" are defined as the level/class that had the highest fitted probability. 
+#' 
+#' @seealso 
+#' \code{\link{plot.boral}} which uses the fitted values calculated from this function to construct plots for residual analysis; \code{\link{ds.residuals}} for calculating the Dunn-Smyth residuals for a fitted model. 
+#' 
+#' @examples 
+#' \dontrun{
+#' ## NOTE: The values below MUST NOT be used in a real application;
+#' ## they are only used here to make the examples run quick!!!
+#' example_mcmc_control <- list(n.burnin = 10, n.iteration = 100, 
+#'                              n.thin = 1)
+#' 
+#' library(mvabund) ## Load a dataset from the mvabund package
+#' data(spider)
+#' y <- spider$abun
+#' 
+#' spiderfit_nb <- boral(y, family = "negative.binomial", lv.control = list(num.lv = 2),
+#'                       row.eff = "fixed", mcmc.control = example_mcmc_control)
+#' 
+#' fitted(spiderfit_nb)
+#' }
 fitted.boral <- function(object, est = "median", ...) {
   n <- object$n
   p <- object$p
@@ -541,13 +575,43 @@ fitted.boral <- function(object, est = "median", ...) {
 }
 
 
-## Calculates DIC based on the conditional log-likelihood
+#' Calculates DIC based on the conditional log-likelihood
 get.dic <- function(jagsfit) {
   jagsfit$BUGSoutput$DIC
 }
 
-
-## Simple extraction of MCMC samples from fitted boral object
+#' Extract MCMC samples from models
+#' 
+#' Extract the MCMC samples from fitted models, taking into account the burnin period and thinning.
+#' 
+#' @usage get.mcmcsamples(object)
+#' 
+#' @param object An object for class "boral".
+#' 
+#' @details For the function to work, the JAGS model file (containing the MCMC samples from the call to JAGS) has to have been saved when fitting the model, that is, \code{save.model = TRUE}. The function will throw an error if it cannot find the the JAGs model file.
+#' @return A matrix containing the MCMC samples, with the number of rows equal to the number of MCMC samples after accounting the burnin period and thinning (i.e., number of rows = (n.iteration - n.burnin)/n.thin), and the number of columns equal to the number of parameters in the fitted model. 
+#' 
+#' @examples 
+#' \dontrun{
+#' ## NOTE: The values below MUST NOT be used in a real application;
+#' ## they are only used here to make the examples run quick!!!
+#' example_mcmc_control <- list(n.burnin = 10, n.iteration = 100, 
+#'                              n.thin = 1)
+#' 
+#' library(mvabund) ## Load a dataset from the mvabund package
+#' library(corrplot) ## For plotting correlations
+#' data(spider)
+#' y <- spider$abun
+#' X <- scale(spider$x)
+#' n <- nrow(y)
+#' p <- ncol(y)
+#' 
+#' spiderfit_nb <- boral(y, X = X, family = "negative.binomial", 
+#'                       save.model = TRUE, mcmc.control = example_mcmc_control, 
+#'                       save.model = TRUE)
+#' 
+#' mcmcsamps <- get.mcmcsamples(spiderfit_nb)
+#' }
 get.mcmcsamples <- function(object) {
   fit.mcmc <- object$jags.model$BUGSoutput
   if (is.null(fit.mcmc)) {
