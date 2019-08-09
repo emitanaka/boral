@@ -28,15 +28,19 @@ fitted:
 ## Installation
 
 You can install the released version of boral from
-[CRAN](https://CRAN.R-project.org) with:
+[CRAN](https://CRAN.R-project.org)
+with:
 
 ``` r
 install.packages("boral")
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+<!-- And the development version from [GitHub](https://github.com/) with: -->
 
-``` r
-# install.packages("devtools")
-devtools::install_github("emitanaka/boral")
-```
+<!-- ``` r -->
+
+<!-- # install.packages("devtools") -->
+
+<!-- devtools::install_github("emitanaka/boral") -->
+
+<!-- ``` -->
