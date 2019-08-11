@@ -1,6 +1,6 @@
 Package: boral
 Title: Bayesian Ordination and Regression AnaLysis
-Version: 1.8
+Version: 1.8.1
 Date: 2019-11-01
 Authors@R: c(
   person("Francis K. C.", "Hui", email="francis.hui@anu.edu.au", role=c("aut", "cre")),
